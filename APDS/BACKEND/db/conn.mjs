@@ -3,20 +3,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const connectionString = process.env.Atlas_URI || "";
-
-console.log(connectionString);
-
 const client = new MongoClient(connectionString);
-
 
 let conn;
 try {
     conn = await client.connect();
-    console.log('mongoDB is CONNECTED!!! :)');
+    console.log('MongoDB is CONNECTED!!!');
 } catch(e) {
     console.error(e);
 }
 
-let db = client.db("users");
-
+let db = client.db("APDS7311");
 export default db;

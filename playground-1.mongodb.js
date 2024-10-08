@@ -23,6 +23,13 @@ db.getCollection('sales').insertMany([
   { 'item': 'def', 'price': 7.5, 'quantity': 10, 'date': new Date('2015-09-10T08:43:00Z') },
   { 'item': 'abc', 'price': 10, 'quantity': 5, 'date': new Date('2016-02-06T20:20:13Z') },
 ]);
+const preRegisteredAccounts = [
+  { name: "ST10083531", password: await bcrypt.hash("Legends69", 10) },
+  { name: "ST10034279", password: await bcrypt.hash("Legends69", 10) },
+  { name: "ST10201101", password: await bcrypt.hash("Legends69", 10) }
+];
+
+await db.collection("users").insertMany(preRegisteredAccounts);
 
 // Run a find command to view items sold on April 4th, 2014.
 const salesOnApril4th = db.getCollection('sales').find({
