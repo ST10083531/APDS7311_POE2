@@ -9,7 +9,7 @@ const Post =(props) => (
         <td>
             {props.post.image && (
                 <img
-                src={'data:image/jpeg;base64,${props.post.image}'} //converting base64 srting to image  ********************
+                src={`data:image/jpeg;base64,${props.post.image}`} //converting base64 srting to image  
                 alt="Post Image"
                 style={{maxWidth: '100px', maxHeight: '100px', objectFit: 'cover'}} //ensure the image fits in the size limitsw
                 />
@@ -35,7 +35,7 @@ export default function PostList() {
             const response = await  fetch('https://localhost:3001/post/');
 
             if (!response.ok) {
-                const message = 'An error has occurred: ${response.statusText}'; // here **********************************************
+                const message = `An error has occurred: ${response.statusText}`; // here **********************************************
                 window.alert(message);
                 return;
             }
@@ -54,7 +54,7 @@ export default function PostList() {
         await fetch('https://localhost3001/post/${id}', {
             method: "DELETE",
             headers: {
-                "Authorization": 'Bearer ${token}',
+                "Authorization": `Bearer ${token} `,
             },
         });
 
