@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const PORT = 3001;
 const app = express();
 
-// SSL options for HTTPS
+// SSL for HTTPS
 let options;
 try {
     options = {
