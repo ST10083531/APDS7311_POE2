@@ -18,7 +18,7 @@ export default function PaymentForm() {
 
     const token = localStorage.getItem("jwt");
 
-    await fetch("http://localhost:3001/transaction/pay", {
+    await fetch("https://localhost:3000/transaction/pay", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -8,13 +8,13 @@ const router = express.Router();
 router.post("/pay", checkauth, async (req, res) => {
     const { amount, currency, provider, account_info, swift_code } = req.body;
 
-    // Input validation with RegEx
+    // Input validation
     if (!/^\d+(\.\d{1,2})?$/.test(amount) || !/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(swift_code)) {
         return res.status(400).json({ message: "Invalid input format" });
     }
 
     const newTransaction = {
-        user: req.user.name,
+        user: req.user.name,  // Assuming user details are from the JWT token
         amount,
         currency,
         provider,

@@ -19,7 +19,7 @@ export default function Register() {
 
     const newUser = { ...form };
 
-    await fetch("http://localhost:3001/user/signup", {
+    await fetch("https://localhost:3001/user/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newUser),
