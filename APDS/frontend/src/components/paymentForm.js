@@ -16,19 +16,42 @@ export default function PaymentForm() {
   async function onSubmit(e) {
     e.preventDefault();
 
-    const token = localStorage.getItem("jwt");
+    // Simple client-side validation before submission
+    if (!/^\d+(\.\d{1,2})?$/.test(form.amount)) {
+        return window.alert("Invalid amount format. Please enter a valid number.");
+    }
 
-    await fetch("https://localhost:3000/transaction/pay", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(form),
-    })
-      .then(() => setForm({ amount: "", currency: "ZAR", provider: "SWIFT", account_info: "", swift_code: "" }))
-      .catch((error) => window.alert("Payment failed: " + error.message));
-  }
+    if (!/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(form.swift_code)) {
+        return window.alert("Invalid SWIFT code format.");
+    }
+
+    const token = localStorage.getItem("jwt");  // Retrieve the JWT token
+
+    const paymentDetails = { ...form };  // Assuming `form` contains the payment details
+
+    try {
+        const response = await fetch("https://localhost:3001/transaction/pay", {  // Ensure the correct URL
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`  // Ensure the JWT token is being sent
+            },
+            body: JSON.stringify(paymentDetails),
+        });
+
+        if (!response.ok) {
+            const message = `An error has occurred: ${response.statusText}`;
+            window.alert(message);
+            return;
+        }
+
+        const data = await response.json();
+        setForm({ amount: "", currency: "ZAR", provider: "SWIFT", account_info: "", swift_code: "" });
+        window.alert("Payment successful!");  // Notify the user of successful payment
+    } catch (error) {
+        window.alert("Payment failed: " + error.message);
+    }
+}
 
   return (
     <div className="container mt-5">

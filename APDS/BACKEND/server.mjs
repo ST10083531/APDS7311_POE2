@@ -7,6 +7,7 @@ import cors from "cors";
 import users from "./routes/user.mjs";
 import db from "./db/conn.mjs";
 import bcrypt from "bcrypt";
+import transactions from "./routes/transactions.mjs";
 
 // Manually define __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -35,7 +36,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
-
+app.use("/transaction", transactions);
 // Use the user routes for /user endpoints
 app.use("/user", users);
 

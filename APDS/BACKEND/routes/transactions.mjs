@@ -6,15 +6,23 @@ const router = express.Router();
 
 // Make a payment
 router.post("/pay", checkauth, async (req, res) => {
+    console.log("Received payment request:", req.body);
+
     const { amount, currency, provider, account_info, swift_code } = req.body;
 
-    // Input validation
-    if (!/^\d+(\.\d{1,2})?$/.test(amount) || !/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(swift_code)) {
-        return res.status(400).json({ message: "Invalid input format" });
+    // Input validation using RegEx
+    if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
+        console.log("Invalid amount:", amount);
+        return res.status(400).json({ message: "Invalid amount format" });
+    }
+
+    if (!/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(swift_code)) {
+        console.log("Invalid SWIFT code:", swift_code);
+        return res.status(400).json({ message: "Invalid SWIFT code format" });
     }
 
     const newTransaction = {
-        user: req.user.name,  // Assuming user details are from the JWT token
+        user: req.user.name,  // Extracted from JWT
         amount,
         currency,
         provider,
@@ -23,9 +31,15 @@ router.post("/pay", checkauth, async (req, res) => {
         status: "pending"
     };
 
-    const collection = await db.collection("transactions");
-    await collection.insertOne(newTransaction);
-    res.status(201).json({ message: "Payment successful" });
+    try {
+        const collection = await db.collection("transactions");
+        const result = await collection.insertOne(newTransaction);
+        console.log("Payment successful:", result);
+        res.status(201).json({ message: "Payment successful", transaction: result });
+    } catch (error) {
+        console.error("Payment processing error:", error);
+        res.status(500).json({ message: "Error processing payment" });
+    }
 });
 
 // Get all transactions for employees to review
