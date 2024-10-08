@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
     const [form, setForm] = useState({
@@ -16,60 +16,30 @@ export default function Login() {
     async function onSubmit(e) {
         e.preventDefault();
 
-        const newPerson = { ...form };
+        const userCredentials = { ...form };
 
         await fetch("http://localhost:3001/user/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newPerson),
+            body: JSON.stringify(userCredentials),
         })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
             localStorage.setItem("jwt", data.token);
-            localStorage.setItem("name", data.name);
             setForm({ name: "", account_number: "", password: "" });
-            navigate("/");
+            navigate("/pay");
         })
-        .catch(error => window.alert(error));
+        .catch((error) => window.alert("Failed to log in: " + error.message));
     }
 
     return (
         <div>
             <h3>Login</h3>
             <form onSubmit={onSubmit}>
-                <div className="form-group">
-                    <label htmlFor="name">Username</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="name"
-                        value={form.name}
-                        onChange={(e) => updateForm({ name: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="account_number">Account Number</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="account_number"
-                        value={form.account_number}
-                        onChange={(e) => updateForm({ account_number: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        id="password"
-                        value={form.password}
-                        onChange={(e) => updateForm({ password: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <input type="submit" value="Login" className="btn btn-primary" />
-                </div>
+                <input type="text" value={form.name} onChange={(e) => updateForm({ name: e.target.value })} placeholder="Username" required />
+                <input type="text" value={form.account_number} onChange={(e) => updateForm({ account_number: e.target.value })} placeholder="Account Number" required />
+                <input type="password" value={form.password} onChange={(e) => updateForm({ password: e.target.value })} placeholder="Password" required />
+                <input type="submit" value="Login" />
             </form>
         </div>
     );

@@ -1,48 +1,51 @@
 import express from "express";
-import db from "../db/conn.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import db from "../db/conn.mjs";
 import ExpressBrute from "express-brute";
 
 const router = express.Router();
 var store = new ExpressBrute.MemoryStore();
 var bruteforce = new ExpressBrute(store);
 
-// Sign up
+// Register new customer
 router.post("/signup", async (req, res) => {
-    const password = await bcrypt.hash(req.body.password, 10); // Hash and salt password
-    let newDocument = {
+    // Input validation with RegEx for ID and account number
+    if (!/^[a-zA-Z\s]+$/.test(req.body.name) || !/^\d{13}$/.test(req.body.id_number) || !/^\d{10}$/.test(req.body.account_number)) {
+        return res.status(400).json({ message: "Invalid input format" });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const newCustomer = {
         name: req.body.name,
-        id_number: req.body.id_number,  // ID number
-        account_number: req.body.account_number,  // Account number
-        password: password
+        id_number: req.body.id_number,
+        account_number: req.body.account_number,
+        password: hashedPassword
     };
-    let collection = await db.collection("users");
-    let result = await collection.insertOne(newDocument);
-    res.status(201).json({ message: "User registered successfully" });
+
+    const collection = await db.collection("users");
+    await collection.insertOne(newCustomer);
+    res.status(201).json({ message: "Customer registered successfully" });
 });
 
-// Login
+// Login for customer
 router.post("/login", bruteforce.prevent, async (req, res) => {
     const { name, account_number, password } = req.body;
-    try {
-        const collection = await db.collection("users");
-        const user = await collection.findOne({ name, account_number });
 
-        if (!user) {
-            return res.status(401).json({ message: "Authentication failed" });
-        }
+    const collection = await db.collection("users");
+    const customer = await collection.findOne({ name, account_number });
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Authentication failed" });
-        }
-
-        const token = jwt.sign({ name: req.body.name, account_number: req.body.account_number }, "this_secret_should_be_longer_than_it_is", { expiresIn: "1h" });
-        res.status(200).json({ message: "Authentication successful", token: token, name: req.body.name });
-    } catch (error) {
-        res.status(500).json({ message: "Login failed" });
+    if (!customer) {
+        return res.status(401).json({ message: "Authentication failed" });
     }
+
+    const passwordMatch = await bcrypt.compare(password, customer.password);
+    if (!passwordMatch) {
+        return res.status(401).json({ message: "Authentication failed" });
+    }
+
+    const token = jwt.sign({ name, account_number }, "supersecret", { expiresIn: "1h" });
+    res.status(200).json({ message: "Login successful", token });
 });
 
 export default router;

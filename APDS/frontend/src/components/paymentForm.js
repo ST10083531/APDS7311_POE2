@@ -4,7 +4,7 @@ export default function PaymentForm() {
     const [form, setForm] = useState({
         amount: "",
         currency: "ZAR",
-        provider: "",
+        provider: "SWIFT",
         account_info: "",
         swift_code: ""
     });
@@ -18,7 +18,7 @@ export default function PaymentForm() {
 
         const token = localStorage.getItem("jwt");
 
-        await fetch("http://localhost:3001/post/pay", {
+        await fetch("http://localhost:3001/transaction/pay", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -26,11 +26,8 @@ export default function PaymentForm() {
             },
             body: JSON.stringify(form),
         })
-        .then(response => response.json())
-        .then(() => {
-            setForm({ amount: "", currency: "ZAR", provider: "", account_info: "", swift_code: "" });
-        })
-        .catch(error => window.alert(error));
+        .then(() => setForm({ amount: "", currency: "ZAR", provider: "SWIFT", account_info: "", swift_code: "" }))
+        .catch((error) => window.alert("Payment failed: " + error.message));
     }
 
     return (
@@ -45,28 +42,8 @@ export default function PaymentForm() {
                         id="amount"
                         value={form.amount}
                         onChange={(e) => updateForm({ amount: e.target.value })}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="currency">Currency</label>
-                    <select
-                        className="form-control"
-                        id="currency"
-                        value={form.currency}
-                        onChange={(e) => updateForm({ currency: e.target.value })}
-                    >
-                        <option value="ZAR">ZAR</option>
-                        <option value="USD">USD</option>
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="provider">Provider</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="provider"
-                        value={form.provider}
-                        onChange={(e) => updateForm({ provider: e.target.value })}
+                        placeholder="Amount"
+                        required
                     />
                 </div>
                 <div className="form-group">
@@ -77,6 +54,8 @@ export default function PaymentForm() {
                         id="account_info"
                         value={form.account_info}
                         onChange={(e) => updateForm({ account_info: e.target.value })}
+                        placeholder="Account Info"
+                        required
                     />
                 </div>
                 <div className="form-group">
@@ -87,11 +66,11 @@ export default function PaymentForm() {
                         id="swift_code"
                         value={form.swift_code}
                         onChange={(e) => updateForm({ swift_code: e.target.value })}
+                        placeholder="SWIFT Code"
+                        required
                     />
                 </div>
-                <div className="form-group">
-                    <input type="submit" value="Pay Now" className="btn btn-primary" />
-                </div>
+                <input type="submit" value="Pay Now" className="btn btn-primary" />
             </form>
         </div>
     );
